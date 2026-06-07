@@ -43,8 +43,12 @@ public class MenuPanel extends JPanel {
         
         JButton startButton = new JButton("START GAME");
         startButton.setFont(new Font("Arial", Font.BOLD, 24));
+        startButton.setBackground(new Color(220, 53, 69)); // Premium Red
+        startButton.setForeground(Color.WHITE);
         startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         startButton.setFocusPainted(false);
+        startButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         startButton.addActionListener(e -> {
             if (this.onStartCallback != null) {
                 this.onStartCallback.run();

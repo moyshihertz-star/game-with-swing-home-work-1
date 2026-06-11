@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>תיעוד מחלקות - Aim Practice</title>
+    
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #2563eb;
+            --accent-orange: #ea580c;
+            --text-main: #334155;
+            --text-dark: #0f172a;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #cbd5e1;
+            --code-bg: #f8fafc;
+            --code-text: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Print Setup */
+        @page {
+            size: A4;
+            margin: 15mm 20mm;
+        }
+
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+            }
+            .page-break {
+                page-break-before: always;
+                break-before: page;
+            }
+            .card {
+                box-shadow: none !important;
+                border: 1px solid var(--border-color) !important;
+                page-break-inside: avoid;
+            }
+            pre {
+                page-break-inside: avoid;
+                background-color: #f1f5f9 !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+        }
+
+        .page-break {
+            margin-top: 30px;
+        }
+
+        /* Cover Page Styling (Light Theme for print compatibility) */
+        .cover-page {
+            background-color: #ffffff;
+            color: var(--primary);
+            height: 250mm; /* Fixed height for A4 compatibility */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 50px;
+            page-break-after: always;
+            position: relative;
+            border: 12px solid var(--primary);
+        }
+
+        /* Decorative Background elements (simulating a target) */
+        .cover-decor-target {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            transform: translateY(-50%);
+            width: 260px;
+            height: 260px;
+            border: 4px double rgba(15, 23, 42, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .cover-decor-target::before {
+            content: '';
+            width: 160px;
+            height: 160px;
+            border: 2px dashed rgba(234, 88, 12, 0.25);
+            border-radius: 50%;
+            display: block;
+            position: absolute;
+        }
+
+        .cover-decor-target::after {
+            content: '';
+            width: 30px;
+            height: 30px;
+            background-color: rgba(234, 88, 12, 0.4);
+            border-radius: 50%;
+            display: block;
+        }
+
+        .cover-decor-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            transform: translateY(-50%);
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .cover-decor-crosshair::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.25), transparent);
+        }
+
+        .cover-decor-crosshair::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 1.5px;
+            background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.25), transparent);
+        }
+
+        .cover-header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .cover-logo {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .cover-body {
+            max-width: 550px;
+            z-index: 10;
+        }
+
+        .cover-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.3;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .cover-subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            color: #475569;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .cover-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #475569;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            z-index: 10;
+        }
+
+        .meta-group h4 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        /* Content Styling */
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        header.doc-header {
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 12px;
+        }
+
+        header.doc-header h1 {
+            font-size: 28px;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        header.doc-header p {
+            font-size: 15px;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        /* TOC Styling */
+        .toc-card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            margin-bottom: 35px;
+        }
+
+        .toc-title {
+            font-size: 20px;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .toc-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .toc-item a {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .toc-item-num {
+            background-color: #f1f5f9;
+            color: var(--primary);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .toc-item-pkg {
+            font-size: 11px;
+            color: #475569;
+            margin-right: auto;
+            background-color: #f1f5f9;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+
+        /* Class Card Styling */
+        .class-card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            margin-bottom: 35px;
+        }
+
+        .class-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .class-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .class-title {
+            font-size: 22px;
+            color: var(--text-dark);
+            font-weight: 800;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .badge-model {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .badge-gui {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .badge-app {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            border: 1px solid #ddd6fe;
+        }
+
+        .badge-abstract {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .class-package {
+            font-size: 13px;
+            color: #475569;
+            direction: ltr;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: var(--primary-light);
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background-color: var(--accent);
+            border-radius: 2px;
+        }
+
+        .section-title.warning::before {
+            background-color: var(--accent-orange);
+        }
+
+        p.desc {
+            font-size: 14.5px;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        ul.method-list {
+            list-style: none;
+            padding-right: 5px;
+        }
+
+        ul.method-list li {
+            position: relative;
+            padding-right: 18px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        ul.method-list li::before {
+            content: "•";
+            color: var(--accent);
+            font-size: 18px;
+            position: absolute;
+            right: 0;
+            top: -2px;
+        }
+
+        .method-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            background-color: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 3px;
+            direction: ltr;
+            display: inline-block;
+            font-size: 13px;
+        }
+
+        /* Complex Logic Box (Callout) */
+        .warning-box {
+            background-color: #fff7ed;
+            border-right: 4px solid var(--accent-orange);
+            border-radius: 0 4px 4px 0;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 1px solid #ffedd5;
+            border-top: 1px solid #ffedd5;
+            border-bottom: 1px solid #ffedd5;
+        }
+
+        .warning-box h5 {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #c2410c;
+            margin-bottom: 6px;
+        }
+
+        .warning-box p {
+            font-size: 13.5px;
+            color: #7c2d12;
+            line-height: 1.5;
+        }
+
+        .warning-box ul {
+            margin-right: 15px;
+            margin-top: 6px;
+            font-size: 13.5px;
+            color: #7c2d12;
+        }
+
+        .warning-box ul li {
+            margin-bottom: 4px;
+        }
+
+        /* Code Block Styling - Light Theme with distinct color tokens */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            margin: 12px 0 20px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Light code coloring syntax */
+        .c-comment { color: #57606a; font-style: italic; }
+        .c-keyword { color: #0550ae; font-weight: bold; }
+        .c-string  { color: #116329; }
+        .c-number  { color: #cf222e; }
+        .c-type    { color: #953800; }
+
+        .doc-footer {
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- COVER PAGE -->
+    <div class="cover-page">
+        <div class="cover-decor-target"></div>
+        <div class="cover-decor-crosshair"></div>
+
+        <div class="cover-header">
+            <div class="cover-logo">Aim Practice</div>
+        </div>
+
+        <div class="cover-body">
+            <h1 class="cover-title">תיעוד ומדריך מחלקות מקיף</h1>
+            <p class="cover-subtitle">ניתוח ארכיטקטורה מפורט, הסבר מנגנונים מורכבים ויוצאי דופן, ודוגמאות שימוש בקוד עבור פרויקט אימון הירי (Aim Practice).</p>
+        </div>
+
+        <div class="cover-footer">
+            <div class="meta-group">
+                <h4>נוצר על ידי</h4>
+                <p>Antigravity AI (Google DeepMind)</p>
+            </div>
+            <div class="meta-group" style="text-align: left;">
+                <h4>תאריך יצירה</h4>
+                <p>יוני 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        
+        <header class="doc-header">
+            <h1>מבנה הפרויקט והמחלקות</h1>
+            <p>פרויקט Aim Practice הוא משחק אימון ירי דו-ממדי (2D Aim Trainer) שנכתב ב-Java Swing. המבנה הארכיטקטוני שלו מבוסס על הפרדה ברורה בין מודלים לוגיים לבין רכיבי תצוגה ומנוע הריצה.</p>
+        </header>
+
+        <!-- TABLE OF CONTENTS -->
+        <div class="toc-card">
+            <div class="toc-title">תוכן עניינים</div>
+            <ul class="toc-list">
+                <li class="toc-item">
+                    <span class="toc-item-num">1</span>
+                    <a href="#class-gameobject">GameObject</a>
+                    <span class="toc-item-pkg">model</span>
+                </li>
+                <li class="toc-item">
+                    <span class="toc-item-num">2</span>
+                    <a href="#class-crosshair">Crosshair</a>
+                    <span class="toc-item-pkg">model</span>
+                </li>
+                <li class="toc-item">
+                    <span class="toc-item-num">3</span>
+                    <a href="#class-target">Target</a>
+                    <span class="toc-item-pkg">model</span>
+                </li>
+                <li class="toc-item">
+                    <span class="toc-item-num">4</span>
+                    <a href="#class-menupanel">MenuPanel</a>
+                    <span class="toc-item-pkg">main</span>
+                </li>
+                <li class="toc-item">
+                    <span class="toc-item-num">5</span>
+                    <a href="#class-gameapp">GameApp</a>
+                    <span class="toc-item-pkg">main</span>
+                </li>
+                <li class="toc-item">
+                    <span class="toc-item-num">6</span>
+                    <a href="#class-gamepanel">GamePanel</a>
+                    <span class="toc-item-pkg">main</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 1. GAMEOBJECT -->
+        <div class="class-card" id="class-gameobject">
+            <div class="class-header">
+                <div class="class-title-group">
+                    <h2 class="class-title">GameObject</h2>
+                    <span class="badge badge-abstract">Abstract Class</span>
+                    <span class="badge badge-model">Model</span>
+                </div>
+                <div class="class-package">package model</div>
+            </div>
+
+            <div class="section-title">תיאור ותפקיד</div>
+            <p class="desc">
+                מחלקה מופשטת זו מהווה את מחלקת הבסיס לכל העצמים הפיזיים והגרפיים במשחק (הכוונת והמטרה). היא מגדירה את מאפייני היסוד המשותפים של כל עצם במרחב הדו-ממדי: קואורדינטות מיקום, מידות, וצבע. המחלקה מחייבת את כל יורשיה לממש את שיטות הציור והעדכון של העצם, ובכך היא מאפשרת פולימורפיזם וניהול אחיד של מגוון אלמנטים על גבי המסך.
+            </p>
+
+            <div class="section-title">שיטות ומאפייני מפתח</div>
+            <ul class="method-list">
+                <li>מאפיינים מוגנים: <span class="method-name">protected int x, y</span> (מיקום הפינה השמאלית-עליונה) ו-<span class="method-name">width, height</span> (ממדי הגוף).</li>
+                <li>שיטת <span class="method-name">getBounds()</span>: מחזירה אובייקט <span class="method-name">java.awt.Rectangle</span> המבוסס על מיקום וממדי העצם. משמש כגבול חוסם (Bounding Box) ומאפשר חישובי מגע/התנגשות בסיסיים.</li>
+                <li>שיטה מופשטת <span class="method-name">update()</span>: מיועדת לעדכון הלוגיקה הפנימית או הפיזיקה של העצם בכל פריים (למשל, שינוי מיקום לפי קליטת מקשים).</li>
+                <li>שיטה מופשטת <span class="method-name">draw(Graphics g)</span>: מיועדת לציור העצם על גבי קנבס הציור של Java AWT.</li>
+            </ul>
+
+            <div class="section-title warning">מה מוזר או מסובך במחלקה?</div>
+            <div class="warning-box">
+                <h5>ייצוג קואורדינטות בפינה השמאלית-עליונה</h5>
+                <p>
+                    כמו ברוב ספריות הדו-ממד הגרפיות, קואורדינטות ה-<code>x</code> וה-<code>y</code> של האובייקט אינן מייצגות את מרכזו הגיאומטרי, אלא את <strong>הפינה השמאלית-העליונה</strong> של המלבן החוסם אותו.
+                    כאשר נרצה לחשב את המרכז הפיזי של העצם (כמו בחישוב פגיעות ירי או ציור צולב), נצטרך תמיד לבצע התאמה מתמטית: 
+                    <code>centerX = x + width / 2</code> ו-<code>centerY = y + height / 2</code>.
+                    בנוסף, למרות שמדובר במחלקה מופשטת שלא ניתן לייצר ממנה מופע באופן ישיר, היא כוללת בנאי (Constructor) מלא, מה שמחייב את כל המחלקות היורשות להשתמש בבנאי של מחלקת האב באמצעות קריאה ל-<code>super(...)</code>.
+                </p>
+            </div>
+
+            <div class="section-title">דוגמת שימוש בקוד</div>
+            <pre><code><span class="c-comment">// יצירת מחלקה יורשת מתוך GameObject עבור מכשול סטטי במשחק</span>
+<span class="c-keyword">import</span> model.GameObject;
+<span class="c-keyword">import</span> java.awt.Color;
+<span class="c-keyword">import</span> java.awt.Graphics;
+
+<span class="c-keyword">public class</span> Wall <span class="c-keyword">extends</span> <span class="c-type">GameObject</span> {
+    
+    <span class="c-keyword">public</span> Wall(<span class="c-type">int</span> x, <span class="c-type">int</span> y, <span class="c-type">int</span> width, <span class="c-type">int</span> height) {
+        <span class="c-keyword">super</span>(x, y, width, height, Color.GRAY); <span class="c-comment">// קריאה לבנאי האב</span>
+    }
+
+    <span class="c-keyword">@Override</span>
+    <span class="c-keyword">public void</span> update() {
+        <span class="c-comment">// קיר סטטי - אין צורך בעדכון לוגיקה בכל פריים</span>
+    }
+
+    <span class="c-keyword">@Override</span>
+    <span class="c-keyword">public void</span> draw(Graphics g) {
+        g.setColor(color);
+        g.fillRect(x, y, width, height); <span class="c-comment">// ציור מלבן פשוט</span>
+    }
+}</code></pre>
+            
+            <div class="doc-footer">
+                <span>תיעוד מחלקות Aim Practice</span>
+                <span>עמוד 2</span>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 2. CROSSHAIR -->
+        <div class="class-card" id="class-crosshair">
+            <div class="class-header">
+                <div class="class-title-group">
+                    <h2 class="class-title">Crosshair</h2>
+                    <span class="badge badge-model">Model</span>
+                </div>
+                <div class="class-package">package model</div>
+            </div>
+
+            <div class="section-title">תיאור ותפקיד</div>
+            <p class="desc">
+                מחלקה זו מייצגת את הכוונת של השחקן. הכוונת משמשת ככלי הניווט והירי המרכזי של השחקן על גבי המסך. המחלקה עוקבת אחר מצב המקשים הלחוצים (למעלה, למטה, שמאלה, ימינה במקלדת - חצים או WASD), מעדכנת את מיקומה הפיזי בהתאם למהירות ההתחלתית שלה, ומוודאת שהיא לעולם לא תחרוג מגבולות החלון.
+            </p>
+
+            <div class="section-title">שיטות ומאפייני מפתח</div>
+            <ul class="method-list">
+                <li>בנאי <span class="method-name">Crosshair(int screenWidth, int screenHeight)</span>: מאתחל את הכוונת בדיוק במרכז המסך, בגודל של 16x16 פיקסלים ובצבע ירוק זוהר.</li>
+                <li>שיטות קביעת מצב מקש: <span class="method-name">setUpPressed, setDownPressed, setLeftPressed, setRightPressed</span>. אלו משתמשים במשתנים בוליאניים כדי לעקוב האם המקש לחוץ כעת במקלדת.</li>
+                <li>שיטת <span class="method-name">update()</span>: מוזחת את מיקום הפיקסלים (x או y) בהתאם למקשים הלחוצים ומהירות התנועה (`speed = 5`). מיד לאחר מכן מתבצע סינון טווח (clipping) המונע תנועה אל מחוץ למסך.</li>
+                <li>שיטת <span class="method-name">draw(Graphics g)</span>: מציגה את הכוונת על ידי ציור קווים דקים המצטלבים במרכז.</li>
+            </ul>
+
+            <div class="section-title warning">מה מוזר או מסובך במחלקה?</div>
+            <div class="warning-box">
+                <h5>חישוב נקודת ההצטלבות ומהירות אלכסונית</h5>
+                <p>
+                    <strong>א. ציור ביחס למרכז:</strong> בשיטת הציור <code>draw()</code>, הכוונת אינה מציירת צלב פשוט בנקודת ה-<code>x, y</code>. היא מחשבת קודם את המרכז הפיזי של מלבן הכוונת:
+                    <code>centerX = x + width / 2</code> ו-<code>centerY = y + height / 2</code>.
+                    שני הקווים המצטלבים נמתחים במדויק דרך נקודה זו (קו אופקי מ-<code>x</code> עד <code>x+width</code> במיקום ה-<code>centerY</code>, וקו אנכי מ-<code>y</code> עד <code>y+height</code> במיקום ה-<code>centerX</code>).
+                    <br><br>
+                    <strong>ב. בעיית המהירות האלכסונית (Vector Magnitude):</strong>
+                    כאשר השחקן לוחץ על שני מקשים בו-זמנית (למשל, למעלה וימינה), מיקום הכוונת זז ב-5 פיקסלים למעלה וב-5 פיקסלים ימינה באותו פריים. 
+                    מכיוון שהמהירות מיושמת על שני הצירים בנפרד ללא נרמול וקטורי, השחקן זז באלכסון במהירות של:
+                    עבור מהירות ציר 5, נקבל תנועה אלכסונית של כ-7.07 פיקסלים לפרייים.
+                    תנועה זו מהירה בכ-41% מתנועה ישרה (אופקית או אנכית).
+                </p>
+            </div>
+
+            <div class="section-title">דוגמת שימוש בקוד</div>
+            <pre><code><span class="c-comment">// יצירת כוונת ועדכון המיקום שלה כתוצאה מאירועי לחיצה</span>
+<span class="c-type">Crosshair</span> crosshair = <span class="c-keyword">new</span> <span class="c-type">Crosshair</span>(<span class="c-number">800</span>, <span class="c-number">600</span>);
+
+<span class="c-comment">// המשתמש לוחץ על מקש חץ ימינה</span>
+crosshair.setRightPressed(<span class="c-keyword">true</span>);
+
+<span class="c-comment">// הרצת עדכון לוגיקה (ירוץ בתוך ה-Game Loop)</span>
+crosshair.update(); 
+
+<span class="c-comment">// המיקום של ה-Crosshair זז ימינה ב-5 פיקסלים</span>
+System.out.println(<span class="c-string">"New X Position: "</span> + crosshair.getX());</code></pre>
+            
+            <div class="doc-footer">
+                <span>תיעוד מחלקות Aim Practice</span>
+                <span>עמוד 3</span>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 3. TARGET -->
+        <div class="class-card" id="class-target">
+            <div class="class-header">
+                <div class="class-title-group">
+                    <h2 class="class-title">Target</h2>
+                    <span class="badge badge-model">Model</span>
+                </div>
+                <div class="class-package">package model</div>
+            </div>
+
+            <div class="section-title">תיאור ותפקיד</div>
+            <p class="desc">
+                מחלקה זו מייצגת את המטרה הגרפית המופיעה על המסך. המטרה היא עצם סטטי שאינו זז באופן עצמאי אלא משנה את מיקומו באופן אקראי על פני המסך בכל פעם שהוא נפגע על ידי ירייה מוצלחת של השחקן. המחלקה עושה שימוש ביכולות רישום מתקדמות בדו-ממד להפקת מטרה בעיצוב הייטק מרשים.
+            </p>
+
+            <div class="section-title">שיטות ומאפייני מפתח</div>
+            <ul class="method-list">
+                <li>שיטת <span class="method-name">respawn()</span>: מחשבת קואורדינטות אקראיות חדשות (X, Y) בטווח המסך, תוך שמירה על שולי ביטחון מובנים של 50 פיקסלים מקצוות המסך כדי למנוע את היווצרות המטרה מחוץ לשדה הראייה הנוח.</li>
+                <li>שיטת <span class="method-name">draw(Graphics g)</span>: ממירה את ה-Graphics ל-Graphics2D ומציירת מטרה מפורטת המורכבת מרקע כתום שקוף למחצה, רשת קווים פנימית, מסגרת מוצקה וגרעין פנימי קטן וזוהר.</li>
+            </ul>
+
+            <div class="section-title warning">מה מוזר או מסובך במחלקה?</div>
+            <div class="warning-box">
+                <h5>נוסחת השוליים וטכניקות הציור המתקדמות</h5>
+                <p>
+                    <strong>א. נוסחת מניעת ההיווצרות בשוליים:</strong>
+                    בשיטה <code>respawn()</code> מוגדר שולי ביטחון (<code>margin = 50</code>). כדי למנוע מהמטרה לצאת מהגבולות הפיזיים הימני והתחתון, הנוסחה מנכה מהקצה של החלון גם את רוחב/גובה המטרה עצמה (<code>width</code>):
+                    <br><code>x = margin + random.nextInt(screenWidth - 2 * margin - width)</code>.
+                    זה מבטיח שהמטרה תוגרל במדויק בטווח המבוקש.
+                    <br><br>
+                    <strong>ב. שימוש ב-Graphics2D מתקדם:</strong>
+                    השיטה <code>draw()</code> משתמשת בהמרה ל-<code>Graphics2D</code> ובפונקציות מתקדמות:
+                    - <strong>RenderingHints:</strong> מופעל מנגנון החלקת קצוות (Anti-aliasing) למניעת קצוות משוננים של המלבן המעוגל.
+                    - <strong>Alpha Transparency:</strong> הרקע של המטרה מצויר בגוון כתום שקוף-למחצה (ערך אלפא של 150 מתוך 255): <code>new Color(255, 140, 0, 150)</code>.
+                    - <strong>קווי רשת פנימיים (Gridlines):</strong> מצוירים 3 קווים אנכיים ו-3 אופקיים המבוססים על חלוקת מלבן המטרה ל-4 חלקים שווים (<code>spacing = width / 4</code>).
+                    - <strong>גרעין מרכזי (Center Core):</strong> מחושב מיקום מרכזי מדויק בריבוע שגודלו חמישית מגודל המטרה.
+                </p>
+            </div>
+
+            <div class="section-title">דוגמת שימוש בקוד</div>
+            <pre><code><span class="c-comment">// יצירת מטרה בחלון בגודל 800x600</span>
+<span class="c-type">Target</span> target = <span class="c-keyword">new</span> <span class="c-type">Target</span>(<span class="c-number">800</span>, <span class="c-number">600</span>);
+
+<span class="c-comment">// הדפסת המיקום הראשוני שהוגרל בבנאי</span>
+System.out.println(<span class="c-string">"X: "</span> + target.getX() + <span class="c-string">", Y: "</span> + target.getY());
+
+<span class="c-comment">// העברת המטרה למיקום אקראי חדש (למשל, לאחר פגיעה)</span>
+target.respawn();</code></pre>
+            
+            <div class="doc-footer">
+                <span>תיעוד מחלקות Aim Practice</span>
+                <span>עמוד 4</span>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 4. MENUPANEL -->
+        <div class="class-card" id="class-menupanel">
+            <div class="class-header">
+                <div class="class-title-group">
+                    <h2 class="class-title">MenuPanel</h2>
+                    <span class="badge badge-gui">GUI Panel</span>
+                </div>
+                <div class="class-package">package main</div>
+            </div>
+
+            <div class="section-title">תיאור ותפקיד</div>
+            <p class="desc">
+                מחלקה זו יורשת מ-<code>JPanel</code> ומייצגת את מסך הבית והוראות המשחק. היא מציגה כותרת גדולה ומרשימה בצבע טורקיז זוהר, הוראות מפורטות לשימוש במקלדת ובעכבר, וכפתור מרכזי להתחלת המשחק ("START GAME"). מסך זה נועד להיות עצמאי ומעביר את האישור להתחלת המשחק לפנל הראשי באמצעות Callback (מנגנון קריאה חוזרת).
+            </p>
+
+            <div class="section-title">שיטות ומאפייני מפתח</div>
+            <ul class="method-list">
+                <li>בנאי <span class="method-name">MenuPanel(Runnable onStartCallback)</span>: מקבל מופע של <span class="method-name">Runnable</span> שיש להפעיל ברגע שלחיצת הכפתור מתרחשת. הבנאי מארגן את הרכיבים השונים באמצעות שילוב מנהלי פריסה (Layout Managers).</li>
+                <li>שימוש ב-<span class="method-name">BoxLayout</span>: הפאנל הפנימי מסודר אנכית (Y_AXIS), ומאפשר סידור נוח של כותרת, הוראות טקסט וכפתור ההפעלה בזה אחר זה.</li>
+                <li>שיטת טיפול באירועים: מאזין לפעולת הכפתור (ActionListener) מפעיל את הקולבק <code>onStartCallback.run()</code> אם הוא אינו ריק.</li>
+            </ul>
+
+            <div class="section-title warning">מה מוזר או מסובך במחלקה?</div>
+            <div class="warning-box">
+                <h5>תצורת תיבת ההוראות (JTextArea) ופריסה דינמית</h5>
+                <p>
+                    <strong>א. ביטול אפקטים של JTextArea:</strong>
+                    כדי להציג הוראות מעוצבות הכוללות ירידות שורה, נעשה שימוש ברכיב <code>JTextArea</code>. אולם, כברירת מחדל רכיב זה מיועד לעריכה ויש לו רקע לבן ומסגרת. כדי לגרום לו להתמזג בעיצוב, הוגדרו עבורו הפרמטרים הבאים:
+                    - <code>instructionsArea.setOpaque(false);</code>: מונע ציור רקע לבן, ובכך חושף את הצבע השחור של הפאנל הראשי.
+                    - <code>instructionsArea.setEditable(false);</code>: הופך אותו לטקסט לקריאה בלבד.
+                    - <code>instructionsArea.setFocusable(false);</code>: מונע מהמשתמש לבחור או להציב את סמן הכתיבה (Caret) בתוך התיבה, ובכך שומר על מקשי המקלדת זמינים למשחק.
+                    <br><br>
+                    <strong>ב. פריסה דינמית וריווחים:</strong>
+                    נעשה שימוש ב-<code>Box.createVerticalGlue()</code> בראש ובתחתית הרכיבים. מטרתו של ה-Glue היא להתנהג כקפיץ אלסטי שדוחף את כל הרכיבים (כותרת, הוראות, כפתור) יחד למרכז האנכי של החלון. הריווחים הקבועים מבוצעים בעזרת <code>Box.createRigidArea(new Dimension(0, 30))</code>.
+                </p>
+            </div>
+
+            <div class="section-title">דוגמת שימוש בקוד</div>
+            <pre><code><span class="c-comment">// מאתחל את תפריט המשחק ומספק קולבק שמדפיס הודעה</span>
+<span class="c-type">MenuPanel</span> menuPanel = <span class="c-keyword">new</span> <span class="c-type">MenuPanel</span>(() -> {
+    System.out.println(<span class="c-string">"קולבק הופעל!"</span>);
+});</code></pre>
+            
+            <div class="doc-footer">
+                <span>תיעוד מחלקות Aim Practice</span>
+                <span>עמוד 5</span>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 5. GAMEAPP -->
+        <div class="class-card" id="class-gameapp">
+            <div class="class-header">
+                <div class="class-title-group">
+                    <h2 class="class-title">GameApp</h2>
+                    <span class="badge badge-app">App Entry</span>
+                </div>
+                <div class="class-package">package main</div>
+            </div>
+
+            <div class="section-title">תיאור ותפקיד</div>
+            <p class="desc">
+                מחלקה זו מהווה את שער הכניסה הראשי לתוכנית (Entry Point). היא מכילה את מתודת ה-<code>main</code> ומגדירה את ה-<code>JFrame</code> (חלון האפליקציה). תפקידה המרכזי הוא לנהל את המבנה הראשי של החלונות ולהגדיר את החוקים למעבר בין מסך התפריט (MenuPanel) למסך המשחק הפעיל (GamePanel) על ידי שימוש במנהל הפריסה <code>CardLayout</code>.
+            </p>
+
+            <div class="section-title">שיטות ומאפייני מפתח</div>
+            <ul class="method-list">
+                <li>שיטת <span class="method-name">main(String[] args)</span>: השיטה הראשונה שמורצת על ידי ה-Java Virtual Machine.</li>
+                <li>שימוש ב-<span class="method-name">CardLayout</span>: מנהל פריסה המאפשר להחזיק מספר רכיבים כמו "כרטיסיות" (Cards) ולהציג בכל רגע נתון רק כרטיסייה אחת על גבי החלון הראשי.</li>
+                <li>שימוש ב-<span class="method-name">JFrame</span>: יצירת החלון הראשי של מערכת ההפעלה, הגדרת הגודל הקבוע שלו (800x600) ומניעת שינוי גודל החלון באופן ידני (Resizable: false).</li>
+            </ul>
+
+            <div class="section-title warning">מה מוזר או מסובך במחלקה?</div>
+            <div class="warning-box">
+                <h5>SwingUtilities.invokeLater ובטיחות תהליכונים (Thread Safety)</h5>
+                <p>
+                    <strong>א. בטיחות תהליכונים ב-Swing:</strong>
+                    במתודה <code>main</code>, קוד אתחול ה-GUI כולו עטוף בקריאה:
+                    <br><code>SwingUtilities.invokeLater(() -> { ... });</code>.
+                    <br>
+                    <strong>למה זה חובה?</strong> ספריות הגרפיקה של Java (Swing ו-AWT) אינות בטוחות לשימוש מרובה תהליכונים. כל שינוי, יצירה או עדכון של רכיבי ממשק משתמש חייבים לרוץ אך ורק על גבי תהליכון מיוחד בשם <strong>Event Dispatch Thread (EDT)</strong>. 
+                    קריאה ל-<code>invokeLater</code> מכניסה את קוד אתחול החלון לתור המשימות של ה-EDT, מה שמונע שגיאות סנכרון לא צפויות ומצבי מרוץ (Race Conditions) מול ה-Thread הראשי של ה-JVM.
+                    <br><br>
+                    <strong>ב. העברת פוקוס בעת החלפת כרטיס (Card Routing):</strong>
+                    כאשר השחקן לוחץ על כפתור תחילת המשחק, ה-Callback מחליף את התצוגה לכרטיס המשחק (<code>"GAME"</code>). אולם, באותו רגע המקלדת עלולה לאבד את המיקוד שלה.
+                    כדי לפתור זאת, מופעלות שתי פקודות רצופות:
+                    <code>gamePanel.requestFocusInWindow();</code> - המבקשת להחזיר את פוקוס המקלדת לפאנל המשחק.
+                    <code>gamePanel.startGame();</code> - המניעה את הלולאה הפנימית של המשחק.
+                </p>
+            </div>
+
+            <div class="section-title">דוגמת שימוש בקוד</div>
+            <pre><code><span class="c-comment">// נקודת הכניסה של היישום כולו</span>
+<span class="c-keyword">public static void</span> main(String[] args) {
+    SwingUtilities.invokeLater(() -> {
+        JFrame frame = <span class="c-keyword">new</span> JFrame(<span class="c-string">"Aim Practice"</span>);
+        frame.setVisible(<span class="c-keyword">true</span>);
+    });
+}</code></pre>
+            
+            <div class="doc-footer">
+                <span>תיעוד מחלקות Aim Practice</span>
+                <span>עמוד 6</span>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 6. GAMEPANEL -->
+        <div class="class-card" id="class-gamepanel">
+            <div class="class-header">
+                <div class="class-title-group">
+                    <h2 class="class-title">GamePanel</h2>
+                    <span class="badge badge-gui">GUI Panel</span>
+                    <span class="badge badge-model">Engine</span>
+                </div>
+                <div class="class-package">package main</div>
+            </div>
+
+            <div class="section-title">תיאור ותפקיד</div>
+            <p class="desc">
+                זוהי המחלקה החשובה והמורכבת ביותר בפרויקט, המהווה את מנוע המשחק (Game Engine) בפועל. היא יורשת מ-<code>JPanel</code> ומממשת את ממשק ה-<code>Runnable</code>. תפקידיה כוללים ניהול מחזור חיי תהליכון המשחק (60 FPS Game Loop), קליטת קלט משולב (מקלדת ועכבר), ניהול מצבי המשחק (פעיל, מושהה, סיום), חישוב פגיעות ירי מבוסס מרחק, וציור כלל האלמנטים על המסך - כולל זרועות מגוף ראשון עם אפקט הדף (Recoil) ותנועה תלת-ממדית מדומה (Pseudo-3D parallax).
+            </p>
+
+            <div class="section-title">שיטות ומאפייני מפתח</div>
+            <ul class="method-list">
+                <li>שיטת <span class="method-name">startGame()</span>: יוצרת ומפעילה תהליכון (Thread) חדש המריץ את המשחק ברקע באופן עצמאי.</li>
+                <li>שיטת <span class="method-name">run()</span>: הלולאה הראשית של המשחק. מנהלת את קצב הריצה בעזרת השוואת זמנים מדויקת.</li>
+                <li>שיטת <span class="method-name">shoot()</span>: מופעלת בעת לחיצה על רווח או קליק שמאלי. היא מגדילה את מונה היריות, מפעילה אפקט רתע ומשווה מרחק למטרה.</li>
+                <li>שיטת <span class="method-name">drawFirstPersonArms(Graphics g)</span>: מציירת נשק וידיים בדו-ממד מלא, המשנים את מיקומם דינמית בהתאם למיקום הכוונת.</li>
+                <li>שיטת <span class="method-name">drawHUD(Graphics g)</span>: מציגה לוח נתונים בזמן אמת - דיוק נוכחי (Kills/Shots), קצב הריגות בשנייה (Kills/Sec), שעון עצר וניקוד.</li>
+            </ul>
+
+            <div class="section-title warning">מה מוזר או מסובך במחלקה?</div>
+            <div class="warning-box">
+                <h5>ניתוח מנגנוני המשחק המתקדמים</h5>
+                <p>
+                    <strong>1. לולאת FPS קבועה (בשיטה <code>run</code>):</strong>
+                    המשחק פועל בקצב קבוע של 60 פריימים בשנייה. בשיטת הלולאה הראשית, נמדד הזמן שלקח לבצע את העדכון והציור בננו-שניות (<code>elapsed</code>).
+                    זמן זה מומר למילישניות ומנוכה מזמן הפריים הרצוי (כ-16.6 מילישניות): 
+                    <code>wait = targetTime - elapsed / 1000000;</code>.
+                    אם מתקבל ערך <code>wait</code> חיובי, התהליכון מורדם למשך זמן זה. אם הוא שלילי (מכיוון שהעיבוד לקח יותר מ-16.6 מילישניות), התהליכון אינו מורדם כלל כדי לפצות על העומס.
+                    <br><br>
+                    <strong>2. זיהוי פגיעה מעגלי (בשיטה <code>shoot</code>):</strong>
+                    למרות שהמטרה (<code>Target</code>) מוגדרת כמלבן ומצוירת כריבוע עם פינות מעוגלות, חישוב הפגיעה מתבצע כאילו היא <strong>עיגול מושלם</strong>.
+                    השיטה מחשבת את המרחק הגיאומטרי בין נקודת מרכז הכוונת לבין מרכז המטרה בעזרת הנוסחה למציאת מרחק בין שתי נקודות (<code>Point2D.distance</code>).
+                    ירייה נחשבת לפגיעה אך ורק אם המרחק קטן או שווה לרדיוס המטרה (חצי מרוחב המטרה):
+                    <code>distance <= target.getWidth() / 2.0</code>.
+                    אם השחקן יורה בפינות הקיצוניות של ריבוע המטרה, הירי לא ייקלט כפגיעה.
+                    <br><br>
+                    <strong>3. הדמיית רתע/הדף (Recoil Decelerate):</strong>
+                    בעת ביצוע ירי, המשתנה <code>recoilOffset</code> מקבל ערך של 20. בשיטת העדכון <code>update()</code>, הערך הזה דועך בהדרגה בכל פריים ב-2.0 יחידות:
+                    <code>if (recoilOffset > 0) recoilOffset -= 2.0;</code>.
+                    בשיטת ציור הנשק, המיקום האנכי של הנשק מושפע מפרמטר זה: <code>baseY = h + 20 + offsetY + recoilOffset</code>.
+                    זה גורם לנשק "לקפוץ" מיידית למטה ב-20 פיקסלים בעת הלחיצה, ולהחליק בחזרה למעלה בצורה רציפה וחלקה על פני 10 פריימים.
+                    <br><br>
+                    <strong>4. הדמיית תנועה תלת-ממדית מדומה (Pseudo-3D Parallax):</strong>
+                    הנשק והידיים מצוירים במרכז החלק התחתון. כדי להעניק תחושת עומק ומיקוד במרחב תלת-ממדי, מחושב היסט (Offset) יחסי למיקום הכוונת:
+                    <code>offsetX = (crosshairX - w / 2.0) * 0.3;</code>
+                    <code>offsetY = (crosshairY - h / 2.0) * 0.3;</code>.
+                    כאשר השחקן מזיז את הכוונת, הנשק והזרועות מופעלים עם היסט זה. מכיוון שהיחס הוא 0.3 (30% בלבד מתנועת הכוונת), נוצרת פרלקסה מרהיבה שבה הכוונת זזה מהר יותר מהנשק, מה שמדמה תנועת מבט ומקנה למשחק מראה ייחודי של משחקי יריות מגוף ראשון קלאסיים (Doom-style).
+                    <br><br>
+                    <strong>5. שימוש בשיבוט Graphics (שיטת <code>g.create()</code>):</strong>
+                    בשיטה <code>drawFirstPersonArms</code>, במקום לעבוד ישירות על מופע ה-<code>Graphics</code> המקורי (שמשפיע באופן גלובלי על כל שאר הציורים הבאים), מתבצע שיבוט מקומי:
+                    <code>Graphics2D g2d = (Graphics2D) g.create();</code>.
+                    פעולות הזזה (<code>translate</code>) ושינוי קנה מידה (<code>scale</code>) מבוצעות על גבי המשובט, ובסוף השיטה הוא נמחק בעזרת <code>g2d.dispose();</code>.
+                    דבר זה מונע שיבוש של מיקומי רכיבים אחרים (כמו ה-HUD) שמצוירים לאחר מכן.
+                </p>
+            </div>
+
+            <div class="section-title">דוגמת שימוש בקוד</div>
+            <pre><code><span class="c-comment">// יצירת הפאנל בגודל 800x600 והפעלת המשחק</span>
+<span class="c-type">GamePanel</span> gamePanel = <span class="c-keyword">new</span> <span class="c-type">GamePanel</span>(<span class="c-number">800</span>, <span class="c-number">600</span>);
+gamePanel.startGame();</code></pre>
+            
+            <div class="doc-footer">
+                <span>תיעוד מחלקות Aim Practice</span>
+                <span>עמוד 7</span>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
